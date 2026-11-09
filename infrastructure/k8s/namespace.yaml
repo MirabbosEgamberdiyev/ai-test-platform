@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-test-platform
+  labels:
+    environment: production
+    pod-security.kubernetes.io/enforce: restricted

@@ -1,0 +1,97 @@
+server:
+  port: ${SERVER_PORT:8085}
+  shutdown: graceful
+
+spring:
+  application:
+    name: ai-test-platform
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/ai_test_platform}
+    username: ${POSTGRES_USER:platform_admin}
+    password: ${POSTGRES_PASSWORD:PlatformSecurePass123!}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: PlatformHikariCP
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_batch_fetch_size: 25
+        jdbc:
+          batch_size: 25
+          order_inserts: true
+          order_updates: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3000ms
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:platform_mq}
+    password: ${RABBITMQ_PASSWORD:RabbitSecurePass123!}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+    expiration-minutes: 15
+  vault:
+    master-key: ${VAULT_MASTER_KEY:c3VwZXItc2VjcmV0LW1hc3Rlci1rZXktMzItYnl0ZXM=}
+  ai:
+    primary-provider: ${AI_PRIMARY_PROVIDER:GEMINI}
+    fallback-provider: ${AI_FALLBACK_PROVIDER:OPENAI}
+    gemini:
+      api-key: ${GEMINI_API_KEY:AIzaSyMockKeyForDev123}
+      model: gemini-1.5-pro
+    openai:
+      api-key: ${OPENAI_API_KEY:sk-mock-openai-dev-key}
+      model: gpt-4o
+  telegram:
+    bot-token: ${TELEGRAM_BOT_TOKEN:123456789:MockTelegramTokenForDev}
+  playwright:
+    headless: ${PLAYWRIGHT_HEADLESS:true}
+    simulate-fallback: true

@@ -1,0 +1,161 @@
+﻿{
+    "1_actuator_health":  {
+                              "status":  null,
+                              "components":  null
+                          },
+    "2_iam_registration":  {
+                               "email":  "auditor-d211ed@example.com",
+                               "tenantId":  null,
+                               "status":  "SUCCESS"
+                           },
+    "3_iam_login":  {
+                        "tokenType":  "Bearer",
+                        "status":  "AUTHENTICATED"
+                    },
+    "4_website_registration":  {
+                                   "targetUrl":  "https://example.com",
+                                   "name":  "Example Domain Benchmark",
+                                   "isAuthorized":  true,
+                                   "projectId":  "f7b210cc-ee7a-467e-b877-661584722639"
+                               },
+    "5_ssrf_protection":  [
+                              {
+                                  "target":  "http://169.254.169.254/latest/meta-data/",
+                                  "status":  "BLOCKED"
+                              },
+                              {
+                                  "target":  "http://127.0.0.1:8085/actuator",
+                                  "status":  "BLOCKED"
+                              },
+                              {
+                                  "target":  "http://10.0.0.1/internal",
+                                  "status":  "BLOCKED"
+                              }
+                          ],
+    "6_universal_discovery":  {
+                                  "detectedFramework":  "Modern Web Application (HTML5/ES6)",
+                                  "targetUrl":  "https://example.com",
+                                  "routesCount":  1,
+                                  "formsCount":  0,
+                                  "pageTitle":  "Example Domain"
+                              },
+    "7_ai_test_plan":  {
+                           "casesCount":  6,
+                           "cases":  [
+                                         {
+                                             "id":  "86e44bb6-72a0-4a76-a3ca-ca2ee9884bb3",
+                                             "planId":  "b55b1a9b-f385-4c46-9ef9-967628676876",
+                                             "title":  "Bosh sahifaning yuklanishi va sarlavhasini tekshirish",
+                                             "category":  "FUNCTIONAL",
+                                             "priority":  "HIGH",
+                                             "stepsJson":  "[{\"action\":\"GOTO\",\"target\":\"https://example.com\"},{\"action\":\"ASSERT_VISIBLE\",\"target\":\"body\"}]",
+                                             "expectedResult":  "Sahifa 200 OK kodi bilan to\u0027liq yuklanadi, hech qanday kritik xatolik bo\u0027lmaydi",
+                                             "orderIndex":  1
+                                         },
+                                         {
+                                             "id":  "53c15475-fabc-49c5-b8f0-dbf68699d66e",
+                                             "planId":  "b55b1a9b-f385-4c46-9ef9-967628676876",
+                                             "title":  "Navigatsiya havolalari va ichki yo\u0027nalishlarni tekshirish",
+                                             "category":  "FUNCTIONAL",
+                                             "priority":  "MEDIUM",
+                                             "stepsJson":  "[{\"action\":\"GOTO\",\"target\":\"https://example.com\"},{\"action\":\"ASSERT_VISIBLE\",\"target\":\"a\"}]",
+                                             "expectedResult":  "Barcha asosiy ichki havolalar to\u0027g\u0027ri ishlaydi va 404 xatosi yuz bermaydi",
+                                             "orderIndex":  2
+                                         },
+                                         {
+                                             "id":  "fc843fae-a7c1-42ed-8056-3839d51db165",
+                                             "planId":  "b55b1a9b-f385-4c46-9ef9-967628676876",
+                                             "title":  "Interaktiv shakllar, tugmalar va kiritish maydonlarini tekshirish",
+                                             "category":  "UI_UX",
+                                             "priority":  "HIGH",
+                                             "stepsJson":  "[{\"action\":\"GOTO\",\"target\":\"https://example.com\"},{\"action\":\"ASSERT_VISIBLE\",\"target\":\"button, input\"}]",
+                                             "expectedResult":  "Barcha interaktiv tugmalar bosiladi va shakllar to\u0027g\u0027ri tekshiriladi",
+                                             "orderIndex":  3
+                                         },
+                                         {
+                                             "id":  "795f68c3-cb3e-4c96-8c6f-4a2f11832a9c",
+                                             "planId":  "b55b1a9b-f385-4c46-9ef9-967628676876",
+                                             "title":  "Mobil va planshet qurilmalarda moslashuvchanlikni (375px) tekshirish",
+                                             "category":  "RESPONSIVE",
+                                             "priority":  "HIGH",
+                                             "stepsJson":  "[{\"action\":\"CHECK_RESPONSIVE\",\"width\":375,\"height\":812}]",
+                                             "expectedResult":  "375px o\u0027lchamda gorizontal aylantirish (overflow) yuz bermaydi",
+                                             "orderIndex":  4
+                                         },
+                                         {
+                                             "id":  "da08efb8-e824-4736-8e11-33a1f80ebeb9",
+                                             "planId":  "b55b1a9b-f385-4c46-9ef9-967628676876",
+                                             "title":  "WCAG 2.2 AA standartlariga muvofiq qulaylikni (A11y) tekshirish",
+                                             "category":  "ACCESSIBILITY",
+                                             "priority":  "MEDIUM",
+                                             "stepsJson":  "[{\"action\":\"CHECK_ACCESSIBILITY\",\"standard\":\"WCAG_2_2_AA\"}]",
+                                             "expectedResult":  "Barcha rasmlarda alt matni va kiritish maydonlarida yorliqlar mavjud",
+                                             "orderIndex":  5
+                                         },
+                                         {
+                                             "id":  "a7c418fd-2908-473b-8e22-0e8e2e2472d9",
+                                             "planId":  "b55b1a9b-f385-4c46-9ef9-967628676876",
+                                             "title":  "Xavfsizlik sarlavhalari va HTTPS himoyasini tekshirish",
+                                             "category":  "SECURITY",
+                                             "priority":  "MEDIUM",
+                                             "stepsJson":  "[{\"action\":\"CHECK_SECURITY_HEADERS\"}]",
+                                             "expectedResult":  "HTTPS orqali xavfsiz shifrlangan aloqa ta\u0027minlangan",
+                                             "orderIndex":  6
+                                         }
+                                     ],
+                           "detectedScope":  "FUNCTIONAL, RESPONSIVE, ACCESSIBILITY, SECURITY",
+                           "goal":  "Saytga kirib sarlavha, asosiy havolalar, mobil moslashuvchanlik va qulaylikni tekshir.",
+                           "planId":  "b55b1a9b-f385-4c46-9ef9-967628676876"
+                       },
+    "8_plan_approval":  {
+                            "status":  "APPROVED"
+                        },
+    "9_browser_execution":  {
+                                "runId":  "c73380c5-8f46-4b7b-8b8d-17502753e4d0",
+                                "failedCases":  1,
+                                "durationMs":  "2026-11-09T11:43:52.280522700Z",
+                                "browser":  "CHROMIUM",
+                                "status":  "FAILED",
+                                "passedCases":  5,
+                                "totalCases":  6,
+                                "viewport":  "1280x800"
+                            },
+    "10_defects_and_root_cause":  {
+                                      "defects":  {
+                                                      "id":  "e58d9007-66b6-47ae-a329-c90515e3b0e4",
+                                                      "runId":  "c73380c5-8f46-4b7b-8b8d-17502753e4d0",
+                                                      "caseId":  "da08efb8-e824-4736-8e11-33a1f80ebeb9",
+                                                      "defectCode":  "ERR-1",
+                                                      "title":  "Execution error during WCAG 2.2 AA standartlariga muvofiq qulaylikni (A11y) tekshirish",
+                                                      "severity":  "HIGH",
+                                                      "reproductionSteps":  "1. Open https://example.com\n2. Run step: [{\"action\":\"CHECK_ACCESSIBILITY\",\"standard\":\"WCAG_2_2_AA\"}]",
+                                                      "expectedResult":  "Barcha rasmlarda alt matni va kiritish maydonlarida yorliqlar mavjud",
+                                                      "actualResult":  "Exception: class java.lang.Integer cannot be cast to class java.lang.Long (java.lang.Integer and java.lang.Long are in module java.base of loader \u0027bootstrap\u0027)",
+                                                      "screenshotPath":  "artifacts/screenshots/defect_c73380c5-8f46-4b7b-8b8d-17502753e4d0_da08efb8-e824-4736-8e11-33a1f80ebeb9.png",
+                                                      "consoleLogs":  "",
+                                                      "networkEvidence":  "",
+                                                      "aiRootCause":  "The observed application behavior diverged from standard specifications. Suggested fix: Review element markup, CSS layouts, or error-handling handlers.",
+                                                      "confidenceScore":  0.9,
+                                                      "status":  "OPEN",
+                                                      "createdAt":  "2026-11-09T11:43:52.276644Z"
+                                                  },
+                                      "defectsCount":  null
+                                  },
+    "11_report_exports":  {
+                              "htmlExportBytes":  2327,
+                              "csvExportBytes":  547,
+                              "durationMs":  705,
+                              "passPercentage":  83.33333333333334,
+                              "jsonExportBytes":  2081
+                          },
+    "12_dashboard_metrics":  {
+                                 "totalProjects":  1,
+                                 "totalWebsites":  1,
+                                 "totalTestRuns":  1,
+                                 "passedTests":  5,
+                                 "failedTests":  1,
+                                 "activeExecutions":  0,
+                                 "criticalDefects":  1,
+                                 "successRatePercentage":  83.3
+                             }
+}

@@ -1,0 +1,62 @@
+[
+    {
+        "Step":  "1. Tenant \u0026 Admin Registration",
+        "Passed":  true,
+        "Details":  "TenantId=bc60e00a-3e0b-4db6-b703-b5cf0aa6f32b, AccessToken generated"
+    },
+    {
+        "Step":  "2. User Authentication (Login)",
+        "Passed":  true,
+        "Details":  "JWT successfully issued and verified"
+    },
+    {
+        "Step":  "3. Unauthenticated Access Protection",
+        "Passed":  true,
+        "Details":  "Blocked as expected with HTTP 403"
+    },
+    {
+        "Step":  "4. Safe Target Website Registration",
+        "Passed":  true,
+        "Details":  "Reused Verified SiteId=a0000000-0000-0000-0000-000000000001, Domain=quiz.example.com"
+    },
+    {
+        "Step":  "5. SSRF Guard: Private IP RFC 1918 Block",
+        "Passed":  true,
+        "Details":  "Successfully blocked private IP"
+    },
+    {
+        "Step":  "6. SSRF Guard: Cloud Metadata Block",
+        "Passed":  true,
+        "Details":  "Successfully blocked metadata endpoint"
+    },
+    {
+        "Step":  "7. SSRF Guard: High-Stakes Proctoring Blacklist",
+        "Passed":  true,
+        "Details":  "Successfully blocked high-stakes proctoring platform"
+    },
+    {
+        "Step":  "8. Start Practice Session",
+        "Passed":  true,
+        "Details":  "SessionId=9b25d7cb-0d59-4a17-adc4-f4d4a8d08933, State=IN_PROGRESS"
+    },
+    {
+        "Step":  "9. AI Multimodal Question Analysis",
+        "Passed":  true,
+        "Details":  "QuestionId=537cfef3-ae8b-4af9-8c6e-1ca986394d92, Predicted=A, Confidence=0.94, Rec="
+    },
+    {
+        "Step":  "10. Submit Answer \u0026 Score Evaluation",
+        "Passed":  true,
+        "Details":  "AnsweredQuestions=1, Total=1"
+    },
+    {
+        "Step":  "11. Finish Practice Session",
+        "Passed":  true,
+        "Details":  "ResultId=512284f8-943a-4ab1-8197-3c7acbc5e1ef, AccuracyPercentage=100.00%"
+    },
+    {
+        "Step":  "12. Persisted Practice Analytics Retrieval",
+        "Passed":  true,
+        "Details":  "SessionId=9b25d7cb-0d59-4a17-adc4-f4d4a8d08933, AccuracyPercentage=100.00%, Total=1"
+    }
+]
