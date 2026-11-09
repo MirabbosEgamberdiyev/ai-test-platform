@@ -352,8 +352,10 @@ public class PlaywrightUniversalEngineAdapter implements UniversalDiscoveryPort,
                                     width, height, respCheck.get("scrollWidth"), respCheck.get("clientWidth"));
                         }
                     } else if ("ACCESSIBILITY".equalsIgnoreCase(tc.category())) {
-                        Long missingAlts = (Long) page.evaluate("() => document.querySelectorAll('img:not([alt])').length");
-                        Long missingLabels = (Long) page.evaluate("""
+                        Object rawAlts = page.evaluate("() => document.querySelectorAll('img:not([alt])').length");
+                        int missingAlts = (rawAlts instanceof Number n) ? n.intValue() : 0;
+
+                        Object rawLabels = page.evaluate("""
                             () => {
                                 const inputs = document.querySelectorAll('input:not([type="hidden"]):not([type="submit"])');
                                 let count = 0;
@@ -365,10 +367,12 @@ public class PlaywrightUniversalEngineAdapter implements UniversalDiscoveryPort,
                                 return count;
                             }
                         """);
-                        if (missingAlts != null && missingAlts > 0) {
+                        int missingLabels = (rawLabels instanceof Number n) ? n.intValue() : 0;
+
+                        if (missingAlts > 0) {
                             casePassed = false;
                             failureMessage = String.format("Found %d image(s) lacking WCAG-required alt attribute", missingAlts);
-                        } else if (missingLabels != null && missingLabels > 0) {
+                        } else if (missingLabels > 0) {
                             casePassed = false;
                             failureMessage = String.format("Found %d input(s) lacking accessible labels or aria-label attributes", missingLabels);
                         }
