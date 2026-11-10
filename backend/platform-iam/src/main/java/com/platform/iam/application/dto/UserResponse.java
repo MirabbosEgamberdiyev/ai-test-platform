@@ -13,7 +13,9 @@ public record UserResponse(
         String role,
         String status,
         String telegramChatId,
-        boolean mfaEnabled
+        boolean mfaEnabled,
+        String authProvider,
+        boolean emailVerified
 ) implements Serializable {
 
     public static UserResponse fromDomain(User user) {
@@ -25,7 +27,9 @@ public record UserResponse(
                 user.getRole().name(),
                 user.getStatus().name(),
                 user.getTelegramChatId(),
-                user.isMfaEnabled()
+                user.isMfaEnabled(),
+                user.getAuthProvider() != null ? user.getAuthProvider() : "LOCAL",
+                user.isEmailVerified()
         );
     }
 }

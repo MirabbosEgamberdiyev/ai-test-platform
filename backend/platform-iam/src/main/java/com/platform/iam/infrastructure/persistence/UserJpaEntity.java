@@ -53,6 +53,15 @@ public class UserJpaEntity {
     @Column(name = "mfa_secret", length = 100)
     private String mfaSecret;
 
+    @Column(name = "google_id", length = 100)
+    private String googleId;
+
+    @Column(name = "auth_provider", nullable = false, length = 30)
+    private String authProvider;
+
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified;
+
     @Version
     @Column(name = "version", nullable = false)
     private Long version;
@@ -77,6 +86,9 @@ public class UserJpaEntity {
         entity.telegramChatId = user.getTelegramChatId();
         entity.mfaEnabled = user.isMfaEnabled();
         entity.mfaSecret = user.getMfaSecret();
+        entity.googleId = user.getGoogleId();
+        entity.authProvider = user.getAuthProvider() != null ? user.getAuthProvider() : "LOCAL";
+        entity.emailVerified = user.isEmailVerified();
         entity.version = user.getVersion();
         entity.createdAt = user.getCreatedAt();
         entity.updatedAt = user.getUpdatedAt();
@@ -95,6 +107,9 @@ public class UserJpaEntity {
                 this.telegramChatId,
                 this.mfaEnabled,
                 this.mfaSecret,
+                this.googleId,
+                this.authProvider != null ? this.authProvider : "LOCAL",
+                this.emailVerified,
                 this.version != null ? this.version : 0L,
                 this.createdAt,
                 this.updatedAt

@@ -48,6 +48,7 @@ export interface Translations {
     getStarted: string;
     signOut: string;
     workspace: string;
+    testSolver: string;
   };
   hero: {
     badge: string;
@@ -133,6 +134,23 @@ export interface Translations {
     backHome: string;
     hasAccount: string;
     noAccount: string;
+    continueWithGoogle: string;
+    orDivider: string;
+    forgotPasswordLink: string;
+    forgotPasswordTitle: string;
+    forgotPasswordSubtitle: string;
+    forgotPasswordSubmit: string;
+    forgotPasswordSuccess: string;
+    resetPasswordTitle: string;
+    resetPasswordSubtitle: string;
+    newPasswordLabel: string;
+    confirmPasswordLabel: string;
+    resetPasswordSubmit: string;
+    resetPasswordSuccess: string;
+    verifyEmailTitle: string;
+    verifyEmailSubtitle: string;
+    verifyEmailSuccess: string;
+    backToLogin: string;
   };
   dashboard: {
     overviewTitle: string;
@@ -195,6 +213,24 @@ export interface Translations {
     scopeSecurity: string;
     scopePerformance: string;
     generatePlanBtn: string;
+    authTitle: string;
+    authSubtitle: string;
+    authMethodSso: string;
+    authMethodBearer: string;
+    authMethodPassword: string;
+    authMethodNone: string;
+    authSsoDesc: string;
+    authSsoCookieLabel: string;
+    authSsoCookiePlaceholder: string;
+    authSsoGuideTitle: string;
+    authSsoStep1: string;
+    authSsoStep2: string;
+    authSsoStep3: string;
+    authBearerLabel: string;
+    authBearerPlaceholder: string;
+    authUsernameLabel: string;
+    authPasswordLabel: string;
+    authPasswordNotice: string;
     planGeneratedTitle: string;
     approveAndRunBtn: string;
     liveExecutionTitle: string;

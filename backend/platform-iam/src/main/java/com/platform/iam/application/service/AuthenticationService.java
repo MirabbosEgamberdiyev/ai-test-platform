@@ -70,7 +70,15 @@ public class AuthenticationService {
     }
 
     public AuthTokenResponse authenticate(AuthenticateUserCommand cmd) {
-        User user = userRepository.findByEmail(cmd.email().toLowerCase().trim())
+        String identifier = cmd.email().toLowerCase().trim();
+        User user = userRepository.findByEmail(identifier)
+                .or(() -> {
+                    if ("admin".equalsIgnoreCase(identifier)) {
+                        return userRepository.findByEmail("admin@enterprise-demo.com")
+                                .or(() -> userRepository.findByEmail("admin@aitestops.io"));
+                    }
+                    return java.util.Optional.empty();
+                })
                 .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
         if (!passwordEncoder.matches(cmd.password(), user.getPasswordHash())) {

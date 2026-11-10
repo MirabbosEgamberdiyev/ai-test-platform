@@ -85,7 +85,8 @@ export default function WebsitesPage() {
       setInstructions("");
       loadWebsites();
     } catch (err: any) {
-      setFormError(err.message || "Failed to register website");
+      const msg = err.data?.detail || err.data?.message || err.data?.title || err.message || "Failed to register website";
+      setFormError(msg);
     } finally {
       setSubmitting(false);
     }

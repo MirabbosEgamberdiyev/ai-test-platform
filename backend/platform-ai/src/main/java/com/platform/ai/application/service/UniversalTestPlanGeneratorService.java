@@ -23,14 +23,21 @@ public class UniversalTestPlanGeneratorService {
 
     public GeneratedTestPlan generatePlan(String targetUrl, String naturalLanguageGoal, String language,
                                          List<String> requestedScopes, String discoverySummary) {
-        log.info("Generating universal web test plan for url={} lang={} goal='{}'", targetUrl, language, naturalLanguageGoal);
+        return generatePlan(targetUrl, naturalLanguageGoal, language, requestedScopes, discoverySummary, "NONE");
+    }
+
+    public GeneratedTestPlan generatePlan(String targetUrl, String naturalLanguageGoal, String language,
+                                         List<String> requestedScopes, String discoverySummary,
+                                         String authType) {
+        log.info("Generating universal web test plan for url={} lang={} goal='{}' authType={}",
+                targetUrl, language, naturalLanguageGoal, authType);
 
         String detectedLang = detectLanguage(naturalLanguageGoal, language);
         String scopeSummary = (requestedScopes != null && !requestedScopes.isEmpty())
                 ? String.join(", ", requestedScopes)
                 : "FUNCTIONAL, UI_UX, RESPONSIVE, ACCESSIBILITY, API, SECURITY";
 
-        List<GeneratedTestCase> testCases = buildDeterministicPlan(targetUrl, naturalLanguageGoal, detectedLang, requestedScopes);
+        List<GeneratedTestCase> testCases = buildDeterministicPlan(targetUrl, naturalLanguageGoal, detectedLang, requestedScopes, authType);
 
         return new GeneratedTestPlan(
                 naturalLanguageGoal,
@@ -74,7 +81,7 @@ public class UniversalTestPlanGeneratorService {
         return new DefectAnalysisResult(rootCause, fix, classification, confidence);
     }
 
-    private List<GeneratedTestCase> buildDeterministicPlan(String targetUrl, String goal, String lang, List<String> scopes) {
+    private List<GeneratedTestCase> buildDeterministicPlan(String targetUrl, String goal, String lang, List<String> scopes, String authType) {
         List<GeneratedTestCase> cases = new ArrayList<>();
         int index = 1;
 
@@ -88,7 +95,19 @@ public class UniversalTestPlanGeneratorService {
                 index++
         ));
 
-        // 2. Functional: Navigation links and public route accessibility
+        // 2. Functional / Security: Authenticated SSO & Session Profile Verification
+        if (authType != null && !"NONE".equalsIgnoreCase(authType)) {
+            cases.add(new GeneratedTestCase(
+                    getLocalizedTitle(lang, "AUTH_SSO_PROFILE"),
+                    "FUNCTIONAL",
+                    "CRITICAL",
+                    "[{\"action\":\"GOTO\",\"target\":\"" + targetUrl + "\"},{\"action\":\"ASSERT_AUTHENTICATED\"}]",
+                    getLocalizedExpected(lang, "AUTH_SSO_PROFILE"),
+                    index++
+            ));
+        }
+
+        // 3. Functional: Navigation links and public route accessibility
         cases.add(new GeneratedTestCase(
                 getLocalizedTitle(lang, "NAV_LINKS"),
                 "FUNCTIONAL",
@@ -160,6 +179,7 @@ public class UniversalTestPlanGeneratorService {
         return switch (lang) {
             case "uz-Latn" -> switch (key) {
                 case "HOME_NAV" -> "Bosh sahifaning yuklanishi va sarlavhasini tekshirish";
+                case "AUTH_SSO_PROFILE" -> "Google / Telegram SSO orqali shaxsiy profil va sessiya faolligini tekshirish";
                 case "NAV_LINKS" -> "Navigatsiya havolalari va ichki yo'nalishlarni tekshirish";
                 case "FORMS_BUTTONS" -> "Interaktiv shakllar, tugmalar va kiritish maydonlarini tekshirish";
                 case "RESPONSIVE_MOBILE" -> "Mobil va planshet qurilmalarda moslashuvchanlikni (375px) tekshirish";
@@ -169,6 +189,7 @@ public class UniversalTestPlanGeneratorService {
             };
             case "uz-Cyrl" -> switch (key) {
                 case "HOME_NAV" -> "Бош саҳифанинг юкланиши ва сарлавҳасини текшириш";
+                case "AUTH_SSO_PROFILE" -> "Google / Telegram SSO орқали шахсий профил ва сессия фаоллигини текшириш";
                 case "NAV_LINKS" -> "Навигация ҳаволалари ва ички йўналишларни текшириш";
                 case "FORMS_BUTTONS" -> "Интерактив шакллар, тугмалар ва киритиш майдонларини текшириш";
                 case "RESPONSIVE_MOBILE" -> "Мобил ва планшет қурилмаларда мослашувчанликни (375px) текшириш";
@@ -178,6 +199,7 @@ public class UniversalTestPlanGeneratorService {
             };
             case "ru" -> switch (key) {
                 case "HOME_NAV" -> "Проверка загрузки главной страницы и заголовка";
+                case "AUTH_SSO_PROFILE" -> "Проверка входа в личный профиль и сохранения сессии через Google / Telegram SSO";
                 case "NAV_LINKS" -> "Проверка навигационных ссылок и внутренних маршрутов";
                 case "FORMS_BUTTONS" -> "Проверка интерактивных форм, кнопок и полей ввода";
                 case "RESPONSIVE_MOBILE" -> "Проверка адаптивности на мобильных экранах (375px)";
@@ -187,6 +209,7 @@ public class UniversalTestPlanGeneratorService {
             };
             default -> switch (key) {
                 case "HOME_NAV" -> "Verify Home Page Navigation and Document Title";
+                case "AUTH_SSO_PROFILE" -> "Verify Authenticated User Profile and Session Persistence (Google/Telegram SSO)";
                 case "NAV_LINKS" -> "Verify Navigation Links and Public Route Integrity";
                 case "FORMS_BUTTONS" -> "Verify Interactive Forms, Inputs and Action Buttons";
                 case "RESPONSIVE_MOBILE" -> "Verify Responsive Mobile Layout and Horizontal Overflow (375px)";
@@ -201,6 +224,7 @@ public class UniversalTestPlanGeneratorService {
         return switch (lang) {
             case "uz-Latn" -> switch (key) {
                 case "HOME_NAV" -> "Sahifa 200 OK kodi bilan to'liq yuklanadi, hech qanday kritik xatolik bo'lmaydi";
+                case "AUTH_SSO_PROFILE" -> "Shaxsiy kabinet / profil sahifasi 200 OK bilan yuklanadi, login sahifasiga qaytmaydi";
                 case "NAV_LINKS" -> "Barcha asosiy ichki havolalar to'g'ri ishlaydi va 404 xatosi yuz bermaydi";
                 case "FORMS_BUTTONS" -> "Barcha interaktiv tugmalar bosiladi va shakllar to'g'ri tekshiriladi";
                 case "RESPONSIVE_MOBILE" -> "375px o'lchamda gorizontal aylantirish (overflow) yuz bermaydi";
@@ -210,6 +234,7 @@ public class UniversalTestPlanGeneratorService {
             };
             case "uz-Cyrl" -> switch (key) {
                 case "HOME_NAV" -> "Саҳифа 200 OK коди билан тўлиқ юкланади, ҳеч қандай критик хатолик бўлмайди";
+                case "AUTH_SSO_PROFILE" -> "Шахсий кабинет / профил саҳифаси 200 OK билан юкланади, логин саҳифасига қайтмайди";
                 case "NAV_LINKS" -> "Барча асосий ички ҳаволалар тўғри ишлайди ва 404 хатоси юз бермайди";
                 case "FORMS_BUTTONS" -> "Барча интерактив тугмалар босилади ва шакллар тўғри текширилади";
                 case "RESPONSIVE_MOBILE" -> "375px ўлчамда горизонтал айлантириш (overflow) юз бермайди";
@@ -219,6 +244,7 @@ public class UniversalTestPlanGeneratorService {
             };
             case "ru" -> switch (key) {
                 case "HOME_NAV" -> "Страница успешно загружается со статусом 200 OK без критических ошибок";
+                case "AUTH_SSO_PROFILE" -> "Личный профиль успешно открывается со статусом 200 OK без перенаправления на авторизацию";
                 case "NAV_LINKS" -> "Все основные навигационные ссылки открываются корректно без ошибок 404";
                 case "FORMS_BUTTONS" -> "Кнопки интерактивны, формы корректно обрабатывают валидацию";
                 case "RESPONSIVE_MOBILE" -> "При ширине экрана 375px отсутствует горизонтальный скролл";
@@ -228,6 +254,7 @@ public class UniversalTestPlanGeneratorService {
             };
             default -> switch (key) {
                 case "HOME_NAV" -> "Target page successfully responds with 200 OK and valid DOM title";
+                case "AUTH_SSO_PROFILE" -> "Authenticated profile and dashboard load successfully without unauthorized redirect to login";
                 case "NAV_LINKS" -> "All public navigation routes resolve without 4xx/5xx HTTP errors";
                 case "FORMS_BUTTONS" -> "Interactive elements are accessible, clickable, and responsive";
                 case "RESPONSIVE_MOBILE" -> "Viewport rendering maintains zero horizontal scrollbar at 375px";

@@ -24,6 +24,13 @@ import {
   Lock,
   Layers,
   Check,
+  Key,
+  ShieldCheck,
+  Info,
+  ExternalLink,
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 function NewTestWizardContent() {
@@ -47,10 +54,14 @@ function NewTestWizardContent() {
     "SECURITY",
   ]);
 
-  // Auth credentials (optional)
-  const [authEnabled, setAuthEnabled] = useState(false);
+  // Auth credentials & SSO session
+  const [authEnabled, setAuthEnabled] = useState(true);
+  const [authType, setAuthType] = useState<"GOOGLE_TELEGRAM_SSO" | "BEARER_TOKEN" | "PASSWORD" | "NONE">("GOOGLE_TELEGRAM_SSO");
+  const [sessionCookie, setSessionCookie] = useState("");
+  const [bearerToken, setBearerToken] = useState("");
   const [authUsername, setAuthUsername] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [showDevToolsGuide, setShowDevToolsGuide] = useState(false);
 
   // AI Plan Generation & Approval
   const [generating, setGenerating] = useState(false);
@@ -116,34 +127,60 @@ function NewTestWizardContent() {
       return;
     }
 
+    let cleanUrl = targetUrl.trim();
+    if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
+      cleanUrl = "https://" + cleanUrl;
+      setTargetUrl(cleanUrl);
+    }
+
     setGenerating(true);
     setError(null);
 
     try {
       let projectId = selectedProjectId;
       if (!projectId) {
-        // Automatically register website if not exists
-        const newProj = await webProjectsApi.create({
-          name: new URL(targetUrl).hostname,
-          targetUrl,
-          environment: "PRODUCTION",
-          isAuthorized: true,
-        });
-        projectId = newProj.id;
-        setSelectedProjectId(newProj.id);
+        // Automatically reuse existing project if already registered for this URL
+        const existing = projects.find(
+          (p) =>
+            p.targetUrl.toLowerCase() === cleanUrl.toLowerCase() ||
+            p.targetUrl.toLowerCase() === (cleanUrl + "/").toLowerCase() ||
+            (cleanUrl + "/").toLowerCase() === p.targetUrl.toLowerCase()
+        );
+        if (existing) {
+          projectId = existing.id;
+          setSelectedProjectId(existing.id);
+        } else {
+          // Automatically register website
+          const newProj = await webProjectsApi.create({
+            name: new URL(cleanUrl).hostname,
+            targetUrl: cleanUrl,
+            environment: "PRODUCTION",
+            isAuthorized: true,
+          });
+          projectId = newProj.id;
+          setSelectedProjectId(newProj.id);
+        }
       }
+
+      const effectiveAuthType = authEnabled ? authType : "NONE";
 
       const plan = await webTestsApi.generatePlan({
         projectId,
         naturalLanguageGoal: objective,
         language: locale,
         scopes,
+        authType: effectiveAuthType,
+        authUsername: authUsername.trim() || undefined,
+        authPassword: authPassword.trim() || undefined,
+        sessionCookie: sessionCookie.trim() || undefined,
+        bearerToken: bearerToken.trim() || undefined,
       });
 
       setGeneratedPlan(plan);
       setStep(5);
     } catch (err: any) {
-      setError(err.message || "Failed to generate AI test plan");
+      const msg = err.data?.detail || err.data?.message || err.data?.title || err.message || "Failed to generate AI test plan";
+      setError(msg);
     } finally {
       setGenerating(false);
     }
@@ -157,11 +194,18 @@ function NewTestWizardContent() {
     try {
       await webTestsApi.approvePlan(generatedPlan.id);
 
+      const effectiveAuthType = authEnabled ? authType : "NONE";
+
       const run = await webTestsApi.startRun({
         planId: generatedPlan.id,
         browserType: "CHROMIUM",
         viewportWidth: 1280,
         viewportHeight: 800,
+        authType: effectiveAuthType,
+        authUsername: authUsername.trim() || undefined,
+        authPassword: authPassword.trim() || undefined,
+        sessionCookie: sessionCookie.trim() || undefined,
+        bearerToken: bearerToken.trim() || undefined,
       });
 
       router.push(`/dashboard/tests/${run.id}`);
@@ -379,46 +423,204 @@ function NewTestWizardContent() {
         </Card>
       )}
 
-      {/* STEP 4: AUTH (OPTIONAL) */}
+      {/* STEP 4: AUTH (SSO, GOOGLE, TELEGRAM, BEARER, PASSWORD) */}
       {step === 4 && (
         <Card className="p-6 space-y-5">
           <div className="space-y-1">
-            <h3 className="text-base font-semibold text-white">Test Account Credentials</h3>
-            <p className="text-xs text-slate-400">If your website requires login to access private dashboards, enter credentials securely.</p>
+            <h3 className="text-base font-semibold text-white flex items-center gap-2">
+              <Key className="h-4 w-4 text-indigo-400" />
+              {t.webTesting.authTitle}
+            </h3>
+            <p className="text-xs text-slate-400">
+              {t.webTesting.authSubtitle}
+            </p>
           </div>
 
+          {/* Toggle Auth Required */}
           <div className="flex items-center space-x-2.5 p-3 rounded-lg bg-slate-950 border border-slate-800">
             <input
               type="checkbox"
               id="enableAuth"
               checked={authEnabled}
               onChange={(e) => setAuthEnabled(e.target.checked)}
-              className="rounded border-slate-700 bg-slate-900 text-indigo-600"
+              className="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-indigo-500"
             />
-            <label htmlFor="enableAuth" className="text-xs text-slate-300 font-medium cursor-pointer">
-              This test requires authentication credentials
+            <label htmlFor="enableAuth" className="text-xs text-slate-200 font-medium cursor-pointer flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-400" />
+              {t.webTesting.authTitle} (Protected Dashboards / Profile / Tickets)
             </label>
           </div>
 
           {authEnabled && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-300">Test Username / Email</label>
-                <Input
-                  placeholder="testuser@example.com"
-                  value={authUsername}
-                  onChange={(e) => setAuthUsername(e.target.value)}
-                />
+            <div className="space-y-4 pt-1">
+              {/* Method Selection Tabs */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {/* Method 1: Google / Telegram SSO */}
+                <div
+                  onClick={() => setAuthType("GOOGLE_TELEGRAM_SSO")}
+                  className={`p-3 rounded-lg border cursor-pointer transition-all relative ${
+                    authType === "GOOGLE_TELEGRAM_SSO"
+                      ? "bg-indigo-950/50 border-indigo-500 text-white shadow-sm shadow-indigo-500/20"
+                      : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-semibold text-xs flex items-center gap-1.5">
+                      <Globe2 className="h-3.5 w-3.5 text-indigo-400" />
+                      Google / Telegram SSO
+                    </span>
+                    <Badge variant="outline" className="text-[10px] bg-emerald-950/60 text-emerald-300 border-emerald-800/40">
+                      Recommended
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Session Cookie / Auth Token</p>
+                </div>
+
+                {/* Method 2: Bearer Token */}
+                <div
+                  onClick={() => setAuthType("BEARER_TOKEN")}
+                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                    authType === "BEARER_TOKEN"
+                      ? "bg-indigo-950/50 border-indigo-500 text-white shadow-sm shadow-indigo-500/20"
+                      : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-semibold text-xs flex items-center gap-1.5">
+                      <Key className="h-3.5 w-3.5 text-indigo-400" />
+                      Bearer Token
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">JWT / API Authorization</p>
+                </div>
+
+                {/* Method 3: Password */}
+                <div
+                  onClick={() => setAuthType("PASSWORD")}
+                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                    authType === "PASSWORD"
+                      ? "bg-indigo-950/50 border-indigo-500 text-white shadow-sm shadow-indigo-500/20"
+                      : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-semibold text-xs flex items-center gap-1.5">
+                      <Lock className="h-3.5 w-3.5 text-indigo-400" />
+                      Username & Password
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Traditional Login Form</p>
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-300">Test Password (Masked)</label>
-                <Input
-                  type="password"
-                  placeholder="••••••••••••"
-                  value={authPassword}
-                  onChange={(e) => setAuthPassword(e.target.value)}
-                />
-              </div>
+
+              {/* METHOD 1 CONTENT: GOOGLE / TELEGRAM SSO */}
+              {authType === "GOOGLE_TELEGRAM_SSO" && (
+                <div className="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+                  <div className="flex items-start gap-2 text-xs text-indigo-300 bg-indigo-950/40 p-3 rounded-lg border border-indigo-800/40">
+                    <Info className="h-4 w-4 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium">{t.webTesting.authSsoDesc}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-slate-200 block">
+                      {t.webTesting.authSsoCookieLabel}
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={sessionCookie}
+                      onChange={(e) => setSessionCookie(e.target.value)}
+                      placeholder={t.webTesting.authSsoCookiePlaceholder}
+                      className="w-full text-xs font-mono rounded-lg bg-slate-900 border border-slate-800 p-2.5 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-slate-400">Test Account Email / Username (Optional)</label>
+                      <Input
+                        placeholder="tester@gmail.com"
+                        value={authUsername}
+                        onChange={(e) => setAuthUsername(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* DevTools Quick Helper Accordion */}
+                  <div className="border border-slate-800 rounded-lg overflow-hidden bg-slate-900/50">
+                    <button
+                      type="button"
+                      onClick={() => setShowDevToolsGuide(!showDevToolsGuide)}
+                      className="w-full px-3 py-2 text-left text-xs font-medium text-slate-300 flex items-center justify-between hover:bg-slate-800/40"
+                    >
+                      <span className="flex items-center gap-1.5 text-indigo-300">
+                        <HelpCircle className="h-3.5 w-3.5" />
+                        {t.webTesting.authSsoGuideTitle}
+                      </span>
+                      {showDevToolsGuide ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </button>
+                    {showDevToolsGuide && (
+                      <div className="p-3 text-xs text-slate-400 space-y-1.5 border-t border-slate-800/60 bg-slate-950/80 font-sans">
+                        <p>{t.webTesting.authSsoStep1}</p>
+                        <p>{t.webTesting.authSsoStep2}</p>
+                        <p>{t.webTesting.authSsoStep3}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* METHOD 2 CONTENT: BEARER JWT */}
+              {authType === "BEARER_TOKEN" && (
+                <div className="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-slate-200 block">
+                      {t.webTesting.authBearerLabel}
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={bearerToken}
+                      onChange={(e) => setBearerToken(e.target.value)}
+                      placeholder={t.webTesting.authBearerPlaceholder}
+                      className="w-full text-xs font-mono rounded-lg bg-slate-900 border border-slate-800 p-2.5 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* METHOD 3 CONTENT: TRADITIONAL USERNAME & PASSWORD */}
+              {authType === "PASSWORD" && (
+                <div className="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+                  <div className="text-xs text-amber-300/90 bg-amber-950/30 p-2.5 rounded-lg border border-amber-800/30 flex items-center gap-2">
+                    <Info className="h-4 w-4 shrink-0 text-amber-400" />
+                    <span>{t.webTesting.authPasswordNotice}</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-slate-300">
+                        {t.webTesting.authUsernameLabel}
+                      </label>
+                      <Input
+                        placeholder="tester@example.com"
+                        value={authUsername}
+                        onChange={(e) => setAuthUsername(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-slate-300">
+                        {t.webTesting.authPasswordLabel}
+                      </label>
+                      <Input
+                        type="password"
+                        placeholder="••••••••••••"
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

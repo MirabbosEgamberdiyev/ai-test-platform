@@ -3,6 +3,7 @@ package com.platform.automation.application.service;
 import com.platform.automation.application.port.UniversalDiscoveryPort;
 import com.platform.automation.application.port.UniversalExecutionPort;
 import com.platform.automation.domain.model.ExecutableTestCase;
+import com.platform.automation.domain.model.ExecutionAuthConfig;
 import com.platform.automation.domain.model.TestRunExecutionSummary;
 import com.platform.automation.domain.model.WebsiteDiscoveryResult;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,12 @@ public class UniversalAutomationService {
 
     public TestRunExecutionSummary executeTests(UUID runId, String targetUrl, String browserType,
                                                 int width, int height, List<ExecutableTestCase> testCases) {
-        return executionPort.executeTests(runId, targetUrl, browserType, width, height, testCases);
+        return executionPort.executeTests(runId, targetUrl, browserType, width, height, testCases, ExecutionAuthConfig.none());
+    }
+
+    public TestRunExecutionSummary executeTests(UUID runId, String targetUrl, String browserType,
+                                                int width, int height, List<ExecutableTestCase> testCases,
+                                                ExecutionAuthConfig authConfig) {
+        return executionPort.executeTests(runId, targetUrl, browserType, width, height, testCases, authConfig);
     }
 }

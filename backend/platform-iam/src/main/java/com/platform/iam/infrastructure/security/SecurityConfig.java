@@ -33,9 +33,22 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(401);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"type\":\"urn:problem-type:unauthorized\",\"title\":\"Unauthorized\",\"status\":401,\"detail\":\"Authentication required or token expired\",\"instance\":\"" + request.getRequestURI() + "\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(403);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"type\":\"urn:problem-type:forbidden\",\"title\":\"Forbidden\",\"status\":403,\"detail\":\"Access denied: " + accessDeniedException.getMessage() + "\",\"instance\":\"" + request.getRequestURI() + "\"}");
+                        })
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/v1/auth/**",
+                                "/artifacts/**",
                                 "/actuator/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",

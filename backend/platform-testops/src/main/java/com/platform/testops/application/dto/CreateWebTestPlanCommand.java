@@ -14,5 +14,15 @@ public record CreateWebTestPlanCommand(
         String naturalLanguageGoal,
 
         String language, // uz-Latn, uz-Cyrl, ru, en
-        List<String> scopes // FUNCTIONAL, UI_UX, RESPONSIVE, ACCESSIBILITY, API, SECURITY, PERFORMANCE
-) {}
+        List<String> scopes, // FUNCTIONAL, UI_UX, RESPONSIVE, ACCESSIBILITY, API, SECURITY, PERFORMANCE
+        String authType,     // NONE, GOOGLE_TELEGRAM_SSO, BEARER_TOKEN, SESSION_COOKIE, CREDENTIALS
+        String authUsername,
+        String authPassword,
+        String sessionCookie,
+        String bearerToken,
+        String storageStateJson
+) {
+    public CreateWebTestPlanCommand(UUID projectId, String naturalLanguageGoal, String language, List<String> scopes) {
+        this(projectId, naturalLanguageGoal, language, scopes, "NONE", null, null, null, null, null);
+    }
+}

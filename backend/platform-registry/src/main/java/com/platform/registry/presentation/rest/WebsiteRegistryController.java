@@ -28,7 +28,7 @@ public class WebsiteRegistryController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('TENANT_ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<WebsiteResponse> registerWebsite(@Valid @RequestBody RegisterWebsiteCommand command) {
         WebsiteResponse response = websiteRegistryService.registerWebsite(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

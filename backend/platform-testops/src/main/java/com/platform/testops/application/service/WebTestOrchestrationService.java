@@ -101,7 +101,8 @@ public class WebTestOrchestrationService {
                 command.naturalLanguageGoal(),
                 command.language(),
                 command.scopes(),
-                discovery.accessibilitySummary()
+                discovery.accessibilitySummary(),
+                command.authType()
         );
 
         WebTestPlan plan = WebTestPlan.create(
@@ -179,14 +180,25 @@ public class WebTestOrchestrationService {
                 .map(c -> new ExecutableTestCase(c.getId(), c.getTitle(), c.getCategory().name(), c.getStepsJson(), c.getExpectedResult()))
                 .toList();
 
-        // Execute deterministic tests
+        // Build execution auth config (Google/Telegram SSO session cookie, Bearer token, or credentials)
+        com.platform.automation.domain.model.ExecutionAuthConfig authConfig = new com.platform.automation.domain.model.ExecutionAuthConfig(
+                command.authType(),
+                command.authUsername(),
+                command.authPassword(),
+                command.sessionCookie(),
+                command.bearerToken(),
+                command.storageStateJson()
+        );
+
+        // Execute deterministic tests with session authentication
         TestRunExecutionSummary summary = automationService.executeTests(
                 savedRun.getId(),
                 project.getTargetUrl(),
                 browser,
                 width,
                 height,
-                executableCases
+                executableCases,
+                authConfig
         );
 
         // Process Defects and AI Root-Cause Analysis

@@ -115,7 +115,7 @@ class WebTestOrchestrationServiceTest {
                         new GeneratedTestCase("Check Mobile", "RESPONSIVE", "MEDIUM", "[]", "No overflow", 2)
                 )
         );
-        when(aiPlanGenerator.generatePlan(eq("https://store.example.com"), eq("Test checkout"), eq("uz-Latn"), any(), any()))
+        when(aiPlanGenerator.generatePlan(eq("https://store.example.com"), eq("Test checkout"), eq("uz-Latn"), any(), any(), any()))
                 .thenReturn(generated);
 
         when(planRepository.save(any(WebTestPlan.class))).thenAnswer(i -> i.getArgument(0));
@@ -200,7 +200,7 @@ class WebTestOrchestrationServiceTest {
                         0.95
                 ))
         );
-        when(automationService.executeTests(any(UUID.class), eq("https://store.example.com"), eq("CHROMIUM"), eq(1280), eq(800), any()))
+        when(automationService.executeTests(any(UUID.class), eq("https://store.example.com"), eq("CHROMIUM"), eq(1280), eq(800), any(), any()))
                 .thenReturn(summary);
 
         DefectAnalysisResult analysis = new DefectAnalysisResult("Element overlap", "Add z-index or wait", "CONFIRMED_DEFECT", 0.95);

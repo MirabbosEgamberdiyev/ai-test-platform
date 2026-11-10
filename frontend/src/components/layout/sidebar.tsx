@@ -16,6 +16,7 @@ import {
   LogOut,
   Bot,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { clearStoredTokens } from "@/lib/api";
@@ -34,8 +35,9 @@ export function Sidebar({ className, onClose }: { className?: string; onClose?: 
 
   const navigation = [
     { name: t.nav.dashboard, href: "/dashboard", icon: LayoutDashboard },
-    { name: t.nav.websites, href: "/dashboard/websites", icon: Globe2 },
+    { name: (t.nav as any).testSolver || "AI Test Solver", href: "/dashboard/solve", icon: Sparkles, badge: "AI" },
     { name: t.nav.newTest, href: "/dashboard/tests/new", icon: PlusCircle },
+    { name: t.nav.websites, href: "/dashboard/websites", icon: Globe2 },
     { name: t.nav.testRuns, href: "/dashboard/tests", icon: PlayCircle },
     { name: t.nav.testCases, href: "/dashboard/test-cases", icon: ListTodo },
     { name: t.nav.aiReports, href: "/dashboard/reports", icon: FileBarChart2 },
@@ -72,14 +74,21 @@ export function Sidebar({ className, onClose }: { className?: string; onClose?: 
                 href={item.href}
                 onClick={onClose}
                 className={cn(
-                  "flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors",
+                  "flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors",
                   isActive
                     ? "bg-indigo-600/15 text-indigo-400 border border-indigo-500/20 shadow-sm shadow-indigo-500/10"
                     : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
                 )}
               >
-                <item.icon className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{item.name}</span>
+                <div className="flex items-center space-x-3 truncate">
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{item.name}</span>
+                </div>
+                {(item as any).badge && (
+                  <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/40">
+                    {(item as any).badge}
+                  </span>
+                )}
               </Link>
             );
           })}

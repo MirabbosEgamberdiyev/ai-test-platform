@@ -17,6 +17,7 @@ interface SpringDataUserRepository extends JpaRepository<UserJpaEntity, UUID> {
     Optional<UserJpaEntity> findByTenantIdAndEmail(UUID tenantId, String email);
     boolean existsByEmail(String email);
     Optional<UserJpaEntity> findByTelegramChatId(String telegramChatId);
+    Optional<UserJpaEntity> findByGoogleId(String googleId);
 }
 
 @Component
@@ -58,5 +59,10 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public Optional<User> findByTelegramChatId(String chatId) {
         return repository.findByTelegramChatId(chatId).map(UserJpaEntity::toDomain);
+    }
+
+    @Override
+    public Optional<User> findByGoogleId(String googleId) {
+        return repository.findByGoogleId(googleId).map(UserJpaEntity::toDomain);
     }
 }

@@ -72,6 +72,12 @@ export default function DashboardOverviewPage() {
         </div>
 
         <div className="flex items-center space-x-3">
+          <Link href="/dashboard/solve">
+            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-600/30">
+              <Sparkles className="mr-2 h-4 w-4" />
+              AI Test Solver
+            </Button>
+          </Link>
           <Link href="/dashboard/websites">
             <Button variant="outline" size="sm">
               <Globe2 className="mr-2 h-4 w-4" />
@@ -86,6 +92,33 @@ export default function DashboardOverviewPage() {
           </Link>
         </div>
       </div>
+
+      {/* URL TEST SOLVER HERO BANNER */}
+      <Card className="border-indigo-500/30 bg-gradient-to-r from-indigo-950/50 via-slate-900/80 to-slate-950 p-6 relative overflow-hidden">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center space-x-2">
+              <Badge className="bg-indigo-500 text-white text-[10px] uppercase font-bold tracking-wider">
+                Yangi imkoniyat
+              </Badge>
+              <span className="text-xs text-indigo-300 font-medium">Universal AI Test Solving</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Istalgan test saytining URL manzilini kiriting
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300">
+              Saytdagi mavjud bilet va testlarni avtomatik aniqlaymiz. Siz tanlagan biletni AI chuqur tahlil qilib, to'g'ri javoblarni asoslab beradi.
+            </p>
+          </div>
+          <Link href="/dashboard/solve">
+            <Button className="h-11 px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-xl shadow-indigo-600/20 whitespace-nowrap">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Test Yechishni Boshlash
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </Card>
 
       {/* METRIC TILES (REAL BACKEND METRICS) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

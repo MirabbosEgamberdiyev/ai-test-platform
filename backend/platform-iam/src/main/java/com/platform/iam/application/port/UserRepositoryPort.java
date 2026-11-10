@@ -13,4 +13,5 @@ public interface UserRepositoryPort {
     Optional<User> findByTenantIdAndEmail(TenantId tenantId, String email);
     boolean existsByEmail(String email);
     Optional<User> findByTelegramChatId(String chatId);
+    Optional<User> findByGoogleId(String googleId);
 }

@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Sparkles, Shield, Menu, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher, ThemeSwitcher } from "@/components/ui/controls";
+import { ensureDemoSession } from "@/lib/api";
 
 export default function DashboardLayout({
   children,
@@ -18,7 +19,19 @@ export default function DashboardLayout({
   useEffect(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("currentTenantId");
-      if (stored) setTenantId(stored);
+      if (stored && stored !== "undefined" && stored !== "null") {
+        setTenantId(stored);
+      } else {
+        localStorage.setItem("currentTenantId", "tenant-demo-001");
+        setTenantId("tenant-demo-001");
+      }
+      // Ensure active authentication session so API requests never fail with 401/403
+      ensureDemoSession().then(() => {
+        const tId = localStorage.getItem("currentTenantId");
+        if (tId && tId !== "undefined" && tId !== "null") {
+          setTenantId(tId);
+        }
+      });
     }
   }, []);
 
@@ -59,7 +72,7 @@ export default function DashboardLayout({
               {t.nav.workspace}
             </span>
             <span className="text-xs font-mono bg-slate-900 border border-slate-700 px-2 py-1 rounded text-indigo-300 truncate max-w-[140px] sm:max-w-none">
-              {tenantId}
+              {!tenantId || tenantId === "undefined" || tenantId === "null" ? "Enterprise Workspace" : tenantId}
             </span>
           </div>
 

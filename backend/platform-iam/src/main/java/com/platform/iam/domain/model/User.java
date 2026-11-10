@@ -17,13 +17,17 @@ public class User {
     private String telegramChatId;
     private boolean mfaEnabled;
     private String mfaSecret;
+    private String googleId;
+    private String authProvider;
+    private boolean emailVerified;
     private long version;
     private final Instant createdAt;
     private Instant updatedAt;
 
     public User(UserId id, TenantId tenantId, String email, String passwordHash, String fullName,
                 UserRole role, UserStatus status, String telegramChatId, boolean mfaEnabled,
-                String mfaSecret, long version, Instant createdAt, Instant updatedAt) {
+                String mfaSecret, String googleId, String authProvider, boolean emailVerified,
+                long version, Instant createdAt, Instant updatedAt) {
         this.id = Objects.requireNonNull(id);
         this.tenantId = Objects.requireNonNull(tenantId);
         this.email = Objects.requireNonNull(email);
@@ -34,9 +38,19 @@ public class User {
         this.telegramChatId = telegramChatId;
         this.mfaEnabled = mfaEnabled;
         this.mfaSecret = mfaSecret;
+        this.googleId = googleId;
+        this.authProvider = authProvider != null ? authProvider : "LOCAL";
+        this.emailVerified = emailVerified;
         this.version = version;
         this.createdAt = Objects.requireNonNull(createdAt);
         this.updatedAt = Objects.requireNonNull(updatedAt);
+    }
+
+    public User(UserId id, TenantId tenantId, String email, String passwordHash, String fullName,
+                UserRole role, UserStatus status, String telegramChatId, boolean mfaEnabled,
+                String mfaSecret, long version, Instant createdAt, Instant updatedAt) {
+        this(id, tenantId, email, passwordHash, fullName, role, status, telegramChatId, mfaEnabled,
+             mfaSecret, null, "LOCAL", false, version, createdAt, updatedAt);
     }
 
     public static User create(TenantId tenantId, String email, String passwordHash, String fullName, UserRole role) {
@@ -52,6 +66,31 @@ public class User {
                 null,
                 false,
                 null,
+                null,
+                "LOCAL",
+                false,
+                0L,
+                now,
+                now
+        );
+    }
+
+    public static User createWithGoogle(TenantId tenantId, String email, String fullName, String googleSub) {
+        Instant now = Instant.now();
+        return new User(
+                UserId.generate(),
+                tenantId,
+                email.toLowerCase().trim(),
+                "OAUTH2_GOOGLE_NO_PASSWORD",
+                fullName != null && !fullName.isBlank() ? fullName.trim() : email.split("@")[0],
+                UserRole.ROLE_LEARNER,
+                UserStatus.ACTIVE,
+                null,
+                false,
+                null,
+                googleSub,
+                "GOOGLE",
+                true,
                 0L,
                 now,
                 now
@@ -96,6 +135,32 @@ public class User {
 
     public String getMfaSecret() {
         return mfaSecret;
+    }
+
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public String getAuthProvider() {
+        return authProvider;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void linkGoogle(String googleSub) {
+        this.googleId = Objects.requireNonNull(googleSub);
+        if ("LOCAL".equalsIgnoreCase(this.authProvider)) {
+            this.authProvider = "GOOGLE";
+        }
+        this.emailVerified = true;
+        this.updatedAt = Instant.now();
+    }
+
+    public void markEmailVerified() {
+        this.emailVerified = true;
+        this.updatedAt = Instant.now();
     }
 
     public long getVersion() {
